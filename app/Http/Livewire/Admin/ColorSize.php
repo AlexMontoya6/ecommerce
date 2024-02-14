@@ -17,6 +17,8 @@ class ColorSize extends Component
         'quantity' => 'required|numeric'
     ];
 
+    protected $listeners = ['delete'];
+
     public function mount()
     {
         $this->colors = Color::all();
@@ -26,11 +28,20 @@ class ColorSize extends Component
     {
         $this->validate();
 
-        $this->size->colors()->attach([
-            $this->color_id => [
-                'quantity' => $this->quantity,
-            ],
-        ]);
+        $pivot = TbPivot::where('color_id', $this->color_id)
+            ->where('size_id', $this->size->id)
+            ->first();
+
+        if ($pivot) {
+            $pivot->quantity += $this->quantity;
+            $pivot->save();
+        } else {
+            $this->size->colors()->attach([
+                $this->color_id => [
+                    'quantity' => $this->quantity,
+                ],
+            ]);
+        }
 
         $this->reset(['color_id', 'quantity']);
 
@@ -54,6 +65,12 @@ class ColorSize extends Component
         $this->size = $this->size->fresh();
 
         $this->open = false;
+    }
+
+    public function delete(TbPivot $pivot)
+    {
+        $pivot->delete();
+        $this->size = $this->size->fresh();
     }
 
     public function render()

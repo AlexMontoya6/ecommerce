@@ -48,3 +48,13 @@ ejecutar las migraciones y los seeders
 ```bash
 art migrate --seed
 ```
+
+para ejecutar todos los pasos (asegurar de que tenga permisos de ejecucion)
+
+```bash
+chmod +x setup.sh
+```
+
+```bash
+./setup.sh
+```
